@@ -23,3 +23,6 @@ spec:
             apiUserSecretRef:
               name: {{ .Values.secret }}
               key: apiUser
+            apiDomainSecretRef:
+              name: {{ .Values.secret }}
+              key: apiDomain

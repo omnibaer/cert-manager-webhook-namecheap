@@ -33,6 +33,7 @@ type: Opaque
 stringData:
   apiKey: my_api_key_from_namecheap
   apiUser: my_username_from_namecheap
+  apiDomain: my_domain_from_namecheap
 ```
 
 Now you can create a certificate in staging for testing:

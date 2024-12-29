@@ -6,3 +6,4 @@ type: Opaque
 data:
   apiKey: "<<BASE64 ENCODED NAMECHEAP API KEY>>"
   apiUser: "<<BASE64 ENCODED NAMECHEAP API USER>>"
+  apiDomain: "<<BASE64 ENCODED NAMECHEAP USER DOMAIN>>"

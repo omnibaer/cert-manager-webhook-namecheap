@@ -7,5 +7,9 @@
     "name": "namecheap-credentials",
     "key": "apiUser"
   },
+  "apiDomainSecretRef": {
+    "name": "namecheap-credentials",
+    "key": "apiDomain"
+  },
   "useSandbox": true
 }
