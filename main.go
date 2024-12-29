@@ -295,19 +295,12 @@ func (c *namecheapDNSProviderSolver) setNamecheapClient(ch *v1alpha1.ChallengeRe
 func (c *namecheapDNSProviderSolver) parseChallenge(ch *v1alpha1.ChallengeRequest) (
 	zone string, domain string, err error,
 ) {
-
 	// call GetZone instead to resolve from Namecheap. Alternatively:
-    // if zone, err = c.getSecret(cfg.APIDomainSecretRef, ch.ResourceNamespace)
-	// if err != nil {
-	// 	return "", "", err
-	// }
-	// 
-	if zone, err = GetZone(
-		ch.ResolvedFQDN
-	); err != nil {
-		return "", "", err
+    zone, err = c.getSecret(cfg.APIDomainSecretRef, ch.ResourceNamespace)
+	if err != nil {
+	 	return "", "", err
 	}
-	//
+	
 	zone = util.UnFqdn(zone)
 
 	if idx := strings.Index(ch.ResolvedFQDN, "."+ch.ResolvedZone); idx != -1 {
@@ -370,19 +363,6 @@ func (c *namecheapClientImpl) SetDomain(domain Domain) error {
 		return err
 	}
 	return nil
-}
-
-// prototyped to call getInfo from namecheap SDK and return the domain 
-// name as the zone. Can use user-configured zone instead though
-func (c *namecheapClientImpl) GetZone(domain string) (*zone, error) {
-	resp, err := c.client.DomainsDNS.GetInfo(domain, domain)
-	if err != nil {
-		return nil, err
-	}
-
-    zone := resp.DomainName
-
-	return *zone, nil
 }
 
 func (c *namecheapClientImpl) GetDomain(domain string) (*Domain, error) {
