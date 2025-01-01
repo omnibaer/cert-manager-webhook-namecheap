@@ -138,7 +138,7 @@ func (c *namecheapDNSProviderSolver) Present(ch *v1alpha1.ChallengeRequest) erro
 		}
 	}
 
-	d, err := c.namecheapClient.GetDomain(zone)
+	d, err := c.namecheapClient.GetDomain(*zone)
 	if err != nil {
 		return err
 	}
@@ -164,7 +164,7 @@ func (c *namecheapDNSProviderSolver) CleanUp(ch *v1alpha1.ChallengeRequest) erro
 		return err
 	}
 
-	zone, domain, err := c.parseChallenge(ch)
+	zone, domain, err := c.parseChallenge(ch, cfg)
 	if err != nil {
 		return err
 	}
@@ -175,7 +175,7 @@ func (c *namecheapDNSProviderSolver) CleanUp(ch *v1alpha1.ChallengeRequest) erro
 		}
 	}
 
-	d, err := c.namecheapClient.GetDomain(zone)
+	d, err := c.namecheapClient.GetDomain(*zone)
 	if err != nil {
 		return err
 	}
