@@ -97,11 +97,12 @@ type (
 		// These fields will be set by users in the
 		// `issuer.spec.acme.dns01.providers.webhook.config` field.
 
-		APIKeySecretRef   *cmmeta.SecretKeySelector `json:"apiKeySecretRef"`
-		APIUserSecretRef  *cmmeta.SecretKeySelector `json:"apiUserSecretRef"`
-		ClientIP          *string                   `json:"clientIP"`
-		UseSandbox        bool                      `json:"useSandbox"`
-		UsernameSecretRef *cmmeta.SecretKeySelector `json:"usernameSecretRef"`
+		APIKeySecretRef    *cmmeta.SecretKeySelector `json:"apiKeySecretRef"`
+		APIUserSecretRef   *cmmeta.SecretKeySelector `json:"apiUserSecretRef"`
+		APIDomainSecretRef *cmmeta.SecretKeySelector `json:"apiDomainSecretKeyRef"`
+		ClientIP           *string                   `json:"clientIP"`
+		UseSandbox         bool                      `json:"useSandbox"`
+		UsernameSecretRef  *cmmeta.SecretKeySelector `json:"usernameSecretRef"`
 	}
 )
 
@@ -296,11 +297,11 @@ func (c *namecheapDNSProviderSolver) parseChallenge(ch *v1alpha1.ChallengeReques
 	zone string, domain string, err error,
 ) {
 	// call GetZone instead to resolve from Namecheap. Alternatively:
-    zone, err = c.getSecret(cfg.APIDomainSecretRef, ch.ResourceNamespace)
+	zone, err = c.getSecret(cfg.APIDomainSecretRef, ch.ResourceNamespace)
 	if err != nil {
-	 	return "", "", err
+		return "", "", err
 	}
-	
+
 	zone = util.UnFqdn(zone)
 
 	if idx := strings.Index(ch.ResolvedFQDN, "."+ch.ResolvedZone); idx != -1 {
