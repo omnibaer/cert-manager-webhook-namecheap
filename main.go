@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net"
 	"os"
 	"strings"
@@ -234,7 +233,6 @@ func (c *namecheapDNSProviderSolver) getSecret(ref *cmmeta.SecretKeySelector, na
 	}
 	keyBytes, ok := secret.Data[ref.Key]
 	if !ok {
-		fmt.Println("Retrieved secret value from " + ref.Key)
 		return nil, fmt.Errorf(
 			"no key '%s' in secret '%s/%s'",
 			ref.Key,
@@ -302,17 +300,12 @@ func (c *namecheapDNSProviderSolver) parseChallenge(ch *v1alpha1.ChallengeReques
 	zone, err = c.getSecret(cfg.APIDomainSecretRef, ch.ResourceNamespace)
 	if err != nil {
 		return nil, "", err
-	} else {
-		fmt.Println("Retrieved zone value of " + *zone)
 	}
 
 	*zone = util.UnFqdn(*zone)
-	log.Printf("%s", "Searching for "+*zone+" in "+ch.ResolvedFQDN+" ...")
 	if idx := strings.Index(ch.ResolvedFQDN, "."+*zone); idx != -1 {
-		fmt.Println("Found zone in FQDN at ", idx)
 		domain = ch.ResolvedFQDN[:idx]
 	} else {
-		fmt.Println("Zone not found in FQDN")
 		domain = util.UnFqdn(ch.ResolvedFQDN)
 	}
 
