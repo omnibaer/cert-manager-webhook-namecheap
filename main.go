@@ -34,7 +34,7 @@ func main() {
 	// Log to syslog
 	file, err := syslog.New(syslog.LOG_SYSLOG, "cert-manager-webhook-namecheap")
 	if err != nil {
-		panic("Unable to set logfile:", err.Error())
+		panic("Unable to set logfile!")
 	}
 	// set the log output
 	log.SetOutput(file)
