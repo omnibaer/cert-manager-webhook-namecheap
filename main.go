@@ -138,7 +138,7 @@ func (c *namecheapDNSProviderSolver) Present(ch *v1alpha1.ChallengeRequest) erro
 		}
 	}
 
-	d, err := c.namecheapClient.GetDomain(*zone)
+	d, err := c.namecheapClient.GetDomain(zone)
 	if err != nil {
 		return err
 	}
@@ -175,7 +175,7 @@ func (c *namecheapDNSProviderSolver) CleanUp(ch *v1alpha1.ChallengeRequest) erro
 		}
 	}
 
-	d, err := c.namecheapClient.GetDomain(*zone)
+	d, err := c.namecheapClient.GetDomain(zone)
 	if err != nil {
 		return err
 	}
@@ -294,19 +294,18 @@ func (c *namecheapDNSProviderSolver) setNamecheapClient(ch *v1alpha1.ChallengeRe
 // Get the zone and domain we are setting from the challenge request
 // source: https://github.com/ns1/cert-manager-webhook-ns1
 func (c *namecheapDNSProviderSolver) parseChallenge(ch *v1alpha1.ChallengeRequest, cfg namecheapDNSProviderConfig) (
-	zone *string, domain string, err error,
+	zone string, domain string, err error,
 ) {
-	//zone, err = c.getSecret(cfg.APIDomainSecretRef, ch.ResourceNamespace)
-	*zone = "omnihome.live"
+	myzone, err := c.getSecret(cfg.APIDomainSecretRef, ch.ResourceNamespace)
 	if err != nil {
-		return nil, "", err
+		return "", "", err
 	}
 
-	*zone = util.UnFqdn(*zone)
+	zone = util.UnFqdn(*myzone)
 
 	//log.Printf("%s", "Searching for "+*zone+" in "+ch.ResolvedFQDN+" ...")
 
-	if idx := strings.Index(ch.ResolvedFQDN, "."+*zone); idx != -1 {
+	if idx := strings.Index(ch.ResolvedFQDN, "."+zone); idx != -1 {
 		//log.Printf("Found zone in FQDN at %c", idx)
 
 		domain = ch.ResolvedFQDN[:idx]
