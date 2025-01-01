@@ -99,7 +99,7 @@ type (
 
 		APIKeySecretRef    *cmmeta.SecretKeySelector `json:"apiKeySecretRef"`
 		APIUserSecretRef   *cmmeta.SecretKeySelector `json:"apiUserSecretRef"`
-		APIDomainSecretRef *cmmeta.SecretKeySelector `json:"apiDomainSecretKeyRef"`
+		APIDomainSecretRef *cmmeta.SecretKeySelector `json:"apiDomainSecretRef"`
 		ClientIP           *string                   `json:"clientIP"`
 		UseSandbox         bool                      `json:"useSandbox"`
 		UsernameSecretRef  *cmmeta.SecretKeySelector `json:"usernameSecretRef"`
