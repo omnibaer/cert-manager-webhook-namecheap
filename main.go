@@ -234,7 +234,7 @@ func (c *namecheapDNSProviderSolver) getSecret(ref *cmmeta.SecretKeySelector, na
 	}
 	keyBytes, ok := secret.Data[ref.Key]
 	if !ok {
-		log.Printf("%s", "Retrieved secret value from "+ref.Key)
+		fmt.Println("Retrieved secret value from " + ref.Key)
 		return nil, fmt.Errorf(
 			"no key '%s' in secret '%s/%s'",
 			ref.Key,
@@ -303,16 +303,16 @@ func (c *namecheapDNSProviderSolver) parseChallenge(ch *v1alpha1.ChallengeReques
 	if err != nil {
 		return nil, "", err
 	} else {
-		log.Printf("%s", "Retrieved zone value of "+*zone)
+		fmt.Println("Retrieved zone value of " + *zone)
 	}
 
 	*zone = util.UnFqdn(*zone)
 	log.Printf("%s", "Searching for "+*zone+" in "+ch.ResolvedFQDN+" ...")
 	if idx := strings.Index(ch.ResolvedFQDN, "."+*zone); idx != -1 {
-		log.Printf("Found zone in FQDN at %c", idx)
+		fmt.Println("Found zone in FQDN at ", idx)
 		domain = ch.ResolvedFQDN[:idx]
 	} else {
-		log.Printf("Zone not found in FQDN")
+		fmt.Println("Zone not found in FQDN")
 		domain = util.UnFqdn(ch.ResolvedFQDN)
 	}
 
