@@ -127,7 +127,7 @@ func (c *namecheapDNSProviderSolver) Present(ch *v1alpha1.ChallengeRequest) erro
 		return err
 	}
 
-	zone, domain, err := c.parseChallenge(ch)
+	zone, domain, err := c.parseChallenge(ch, cfg)
 	if err != nil {
 		return err
 	}
@@ -293,16 +293,16 @@ func (c *namecheapDNSProviderSolver) setNamecheapClient(ch *v1alpha1.ChallengeRe
 
 // Get the zone and domain we are setting from the challenge request
 // source: https://github.com/ns1/cert-manager-webhook-ns1
-func (c *namecheapDNSProviderSolver) parseChallenge(ch *v1alpha1.ChallengeRequest) (
-	zone string, domain string, err error,
+func (c *namecheapDNSProviderSolver) parseChallenge(ch *v1alpha1.ChallengeRequest, cfg namecheapDNSProviderConfig) (
+	zone *string, domain string, err error,
 ) {
 	// call GetZone instead to resolve from Namecheap. Alternatively:
 	zone, err = c.getSecret(cfg.APIDomainSecretRef, ch.ResourceNamespace)
 	if err != nil {
-		return "", "", err
+		return nil, "", err
 	}
 
-	zone = util.UnFqdn(zone)
+	*zone = util.UnFqdn(*zone)
 
 	if idx := strings.Index(ch.ResolvedFQDN, "."+ch.ResolvedZone); idx != -1 {
 		domain = ch.ResolvedFQDN[:idx]
