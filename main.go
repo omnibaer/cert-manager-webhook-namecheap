@@ -304,7 +304,7 @@ func (c *namecheapDNSProviderSolver) parseChallenge(ch *v1alpha1.ChallengeReques
 
 	*zone = util.UnFqdn(*zone)
 
-	if idx := strings.Index(ch.ResolvedFQDN, "."+ch.ResolvedZone); idx != -1 {
+	if idx := strings.Index(ch.ResolvedFQDN, "."+*zone); idx != -1 {
 		domain = ch.ResolvedFQDN[:idx]
 	} else {
 		domain = util.UnFqdn(ch.ResolvedFQDN)
