@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
+	"log/syslog"
 	"net"
 	"os"
 	"strings"
@@ -28,6 +30,14 @@ func main() {
 	if GroupName == "" {
 		panic("GROUP_NAME must be specified")
 	}
+
+	// Log to syslog
+	file, err := syslog.New(syslog.LOG_SYSLOG, "cert-manager-webhook-namecheap")
+	if err != nil {
+		panic("Unable to set logfile:", err.Error())
+	}
+	// set the log output
+	log.SetOutput(file)
 
 	// This will register our namecheap DNS provider with the webhook serving
 	// library, making it available as an API under the provided GroupName.
@@ -296,16 +306,22 @@ func (c *namecheapDNSProviderSolver) setNamecheapClient(ch *v1alpha1.ChallengeRe
 func (c *namecheapDNSProviderSolver) parseChallenge(ch *v1alpha1.ChallengeRequest, cfg namecheapDNSProviderConfig) (
 	zone *string, domain string, err error,
 ) {
-	// call GetZone instead to resolve from Namecheap. Alternatively:
 	zone, err = c.getSecret(cfg.APIDomainSecretRef, ch.ResourceNamespace)
 	if err != nil {
 		return nil, "", err
 	}
 
 	*zone = util.UnFqdn(*zone)
+
+	log.Printf("%s", "Searching for "+*zone+" in "+ch.ResolvedFQDN+" ...")
+
 	if idx := strings.Index(ch.ResolvedFQDN, "."+*zone); idx != -1 {
+		log.Printf("Found zone in FQDN at %c", idx)
+
 		domain = ch.ResolvedFQDN[:idx]
 	} else {
+		log.Printf("Zone not found in FQDN")
+
 		domain = util.UnFqdn(ch.ResolvedFQDN)
 	}
 
@@ -411,6 +427,10 @@ func loadConfig(cfgJSON *extapi.JSON) (namecheapDNSProviderConfig, error) {
 	if cfgJSON == nil {
 		return cfg, nil
 	}
+
+	log.Println("JSON to parse:")
+	log.Println(cfgJSON.Raw)
+
 	if err := json.Unmarshal(cfgJSON.Raw, &cfg); err != nil {
 		return cfg, fmt.Errorf("error decoding solver config: %v", err)
 	}
