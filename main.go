@@ -306,7 +306,8 @@ func (c *namecheapDNSProviderSolver) setNamecheapClient(ch *v1alpha1.ChallengeRe
 func (c *namecheapDNSProviderSolver) parseChallenge(ch *v1alpha1.ChallengeRequest, cfg namecheapDNSProviderConfig) (
 	zone *string, domain string, err error,
 ) {
-	zone, err = c.getSecret(cfg.APIDomainSecretRef, ch.ResourceNamespace)
+	//zone, err = c.getSecret(cfg.APIDomainSecretRef, ch.ResourceNamespace)
+	*zone = "omnihome.live"
 	if err != nil {
 		return nil, "", err
 	}
