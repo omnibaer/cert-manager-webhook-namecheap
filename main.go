@@ -27,8 +27,7 @@ var GroupName = os.Getenv("GROUP_NAME")
 
 func main() {
 	log.SetOutput(os.Stdout)
-	err.SetOutput(os.Stderr)
-
+	
 	if GroupName == "" {
 		panic("GROUP_NAME must be specified")
 	}
