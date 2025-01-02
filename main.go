@@ -306,7 +306,7 @@ func (c *namecheapDNSProviderSolver) parseChallenge(ch *v1alpha1.ChallengeReques
 
 	zone = util.UnFqdn(*myzone)
 
-	log.Println("Searching for "+*zone+" in "+ch.ResolvedFQDN+" ...")
+	log.Println("Searching for "+zone+" in "+ch.ResolvedFQDN+" ...")
 
 	if idx := strings.Index(ch.ResolvedFQDN, "."+zone); idx != -1 {
 		log.Println("Found zone in FQDN at %c", idx)
