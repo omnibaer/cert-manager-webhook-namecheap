@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net"
 	"os"
 	"strings"
@@ -25,6 +26,9 @@ import (
 var GroupName = os.Getenv("GROUP_NAME")
 
 func main() {
+	log.SetOutput(os.Stdout)
+	err.SetOutput(os.Stderr)
+
 	if GroupName == "" {
 		panic("GROUP_NAME must be specified")
 	}
@@ -132,6 +136,8 @@ func (c *namecheapDNSProviderSolver) Present(ch *v1alpha1.ChallengeRequest) erro
 		return err
 	}
 
+	log.Println("Presenting challenge for " + zone + ", " + domain)
+
 	if c.namecheapClient == nil {
 		if err := c.setNamecheapClient(ch, cfg); err != nil {
 			return err
@@ -148,6 +154,8 @@ func (c *namecheapDNSProviderSolver) Present(ch *v1alpha1.ChallengeRequest) erro
 	if err := c.namecheapClient.SetDomain(*d); err != nil {
 		return err
 	}
+
+	log.Println("Completed challenge presentation for " + zone + ", " + domain)
 
 	return nil
 }
@@ -169,6 +177,8 @@ func (c *namecheapDNSProviderSolver) CleanUp(ch *v1alpha1.ChallengeRequest) erro
 		return err
 	}
 
+	log.Println("Cleaning challenge up for " + zone + ", " + domain)
+
 	if c.namecheapClient == nil {
 		if err := c.setNamecheapClient(ch, cfg); err != nil {
 			return err
@@ -185,6 +195,8 @@ func (c *namecheapDNSProviderSolver) CleanUp(ch *v1alpha1.ChallengeRequest) erro
 	if err := c.namecheapClient.SetDomain(*d); err != nil {
 		return err
 	}
+
+	log.Println("Completed challenge cleanup for " + zone + ", " + domain)
 
 	return nil
 }
@@ -207,39 +219,30 @@ func (c *namecheapDNSProviderSolver) Initialize(kubeClientConfig *rest.Config, s
 	c.k8sClient = cl
 	c.ctx = context.Background()
 
+	log.Println("Initialized solver.")
+
 	return nil
 }
 
 func (c *namecheapDNSProviderSolver) getSecret(ref *cmmeta.SecretKeySelector, namespace string) (*string, error) {
 	if ref.Name == "" {
-		return nil, fmt.Errorf(
-			"secret not found in '%s'",
-			namespace,
-		)
+		return nil, fmt.Errorf("secret not found in '%s'", namespace)
 	}
+	
 	if ref.Key == "" {
-		return nil, fmt.Errorf(
-			"no 'key' set in secret '%s/%s'",
-			namespace,
-			ref.Name,
-		)
+		return nil, fmt.Errorf("no 'key' set in secret '%s/%s'", namespace, ref.Name)
 	}
 
-	secret, err := c.k8sClient.CoreV1().Secrets(namespace).Get(
-		c.ctx, ref.Name, metav1.GetOptions{},
-	)
+	secret, err := c.k8sClient.CoreV1().Secrets(namespace).Get(c.ctx, ref.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
+	
 	keyBytes, ok := secret.Data[ref.Key]
 	if !ok {
-		return nil, fmt.Errorf(
-			"no key '%s' in secret '%s/%s'",
-			ref.Key,
-			namespace,
-			ref.Name,
-		)
+		return nil, fmt.Errorf("no key '%s' in secret '%s/%s'", ref.Key, namespace, ref.Name)
 	}
+	
 	s := string(keyBytes)
 	return &s, nil
 }
@@ -303,14 +306,14 @@ func (c *namecheapDNSProviderSolver) parseChallenge(ch *v1alpha1.ChallengeReques
 
 	zone = util.UnFqdn(*myzone)
 
-	//log.Printf("%s", "Searching for "+*zone+" in "+ch.ResolvedFQDN+" ...")
+	log.Println("Searching for "+*zone+" in "+ch.ResolvedFQDN+" ...")
 
 	if idx := strings.Index(ch.ResolvedFQDN, "."+zone); idx != -1 {
-		//log.Printf("Found zone in FQDN at %c", idx)
+		log.Println("Found zone in FQDN at %c", idx)
 
 		domain = ch.ResolvedFQDN[:idx]
 	} else {
-		//log.Printf("Zone not found in FQDN")
+		log.Println("Zone not found in FQDN")
 
 		domain = util.UnFqdn(ch.ResolvedFQDN)
 	}
@@ -418,8 +421,8 @@ func loadConfig(cfgJSON *extapi.JSON) (namecheapDNSProviderConfig, error) {
 		return cfg, nil
 	}
 
-	//log.Println("JSON to parse:")
-	//log.Println(cfgJSON.Raw)
+	log.Println("Config JSON to parse:")
+	log.Println(cfgJSON.Raw)
 
 	if err := json.Unmarshal(cfgJSON.Raw, &cfg); err != nil {
 		return cfg, fmt.Errorf("error decoding solver config: %v", err)
